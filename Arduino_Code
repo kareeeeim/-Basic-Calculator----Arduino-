@@ -1,0 +1,109 @@
+## Arduino code for sample calculator 
+
+
+#include <LiquidCrystal.h>
+
+#include <Keypad.h>
+
+LiquidCrystal lcd(13,12,11,10,1,0);
+const byte ROWS=4;
+const byte COLS=4;
+
+char keys [ROWS][COLS]={
+  {'7','8','9','/'},
+  {'4','5','6','*'},
+  {'1','2','3','-'},
+  {'C','0','=','+'}
+  };
+
+  byte rowPins[ROWS]= {2,3,4,5};
+  byte colPins[COLS]= {6,7,8,9};
+
+ Keypad myKeypad=Keypad( makeKeymap(keys),rowPins,colPins,ROWS,COLS);
+
+boolean firstNumState = true;
+boolean NewEqation = true ;
+String num1 = "";
+String num2 = "";
+float result = 0.0;
+char op = ' ';
+
+void setup() {
+  lcd.begin(16,2);                    
+  lcd.setCursor(0, 0);
+  lcd.print("WELCOME");
+  lcd.setCursor(0, 1);
+  delay(1000);
+  clr();
+}
+
+void loop() {
+  char k = myKeypad.getKey();
+  if (k != NO_KEY && (k == '1' || k == '2' || k == '3' || k == '4' || k == '5' || k == '6' || k == '7' || k == '8' || k == '9' || k == '0') && NewEqation == true) {
+
+    if (firstNumState == true) {
+      num1 = num1 + k;
+      lcd.print(k);
+    }
+    else {
+      num2 = num2 + k;
+
+      lcd.print(k);
+    }
+  }
+  if (k != NO_KEY && (k == '+' || k == '-' || k == '*' || k == '/') && NewEqation == true ) {
+    if (firstNumState == true) {
+      op = k;
+      firstNumState = false;
+      lcd.setCursor(15, 0);
+      lcd.print(op);
+      lcd.setCursor(5, 1);
+    }
+  }
+
+  if (k != NO_KEY && k == '=' && NewEqation == true) {
+    if (op == '+') {
+      result = num1.toFloat() + num2.toFloat();
+    } 
+    else if (op == '-') {
+      result = num1.toFloat() - num2.toFloat();    }
+
+    else if (op == '*') {
+      result = num1.toFloat() * num2.toFloat();
+    }
+
+    else if (op == '/'&& num2 != 0 ) {
+      result = num1.toFloat() / num2.toFloat();
+    }
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(num1);
+    lcd.print(op);
+    lcd.print(num2);
+    lcd.setCursor(0, 1);
+    lcd.print("=");
+    lcd.print(result);
+    firstNumState = true;
+    NewEqation = false;
+  }
+
+  if (k != NO_KEY && k == 'C') {
+    clr();
+    NewEqation = true;
+  }
+}
+
+void clr() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("1st: ");
+  lcd.setCursor(12, 0);
+  lcd.print("op: ");
+  lcd.setCursor(0,1);
+  lcd.print("2nd: ");
+  lcd.setCursor(5, 0);
+  num1 = "";
+  num2 = "";
+  result = 0;
+  op = ' ';
+}
